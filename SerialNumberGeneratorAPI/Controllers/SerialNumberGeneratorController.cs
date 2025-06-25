@@ -18,11 +18,11 @@ public class SerialNumberGeneratorController : ControllerBase
     }
 
     [HttpGet(Name = "GenerateSerialNumbers")]
-    public async Task<ActionResult<GeneratorResponse>> Get()
+    public async Task<ActionResult<GeneratorResponse>> Get([FromQuery] string? userFilePath)
     {
         try
         {
-            var generatorResponse = await _serialNumberGenerator.GenerateSerialNumbersFileAsync();
+            var generatorResponse = await _serialNumberGenerator.GenerateSerialNumbersFileAsync(userFilePath);
             return Ok(generatorResponse);
         }
         catch (Exception e)

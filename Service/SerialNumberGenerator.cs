@@ -1,7 +1,6 @@
 using System.Globalization;
 using Contracts;
 using CsvHelper;
-using CsvHelper.Configuration;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -67,9 +66,12 @@ public class SerialNumberGenerator : ISerialNumberGenerator
 
             var newLastSerialNumber =
                 $"{(lastSerialNumberObj.NumberPart + generatorResponse.SerialNumbersGeneratedCount)}{GeneratorConstants.SERIAL_NUMBER_ENDING}";
+
             lastSerialNumberObj.SetNewSerialNumber(newLastSerialNumber);
+
             await _woContext.SaveNewLastSerialNumberAsync(lastSerialNumberObj.SerialNumber);
             generatorResponse.LastGeneratedSerialNumber = lastSerialNumberObj.SerialNumber;
+
             return generatorResponse;
         }
         catch (Exception e)
