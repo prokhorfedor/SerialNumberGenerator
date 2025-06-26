@@ -1,3 +1,4 @@
+using Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Database;
@@ -9,9 +10,19 @@ public class WorkOrderContext : DbContext
 
     public WorkOrderContext(DbContextOptions<WorkOrderContext> options) : base(options) { }
 
-    public Task<string> GetLastSerialNumberAsync()
+    public async Task<string> GetLastSerialNumberAsync()
     {
-        return Task.FromResult(string.Empty);
+        var lastStoredSerialNumber = await this.Database.SqlQuery<string>($"SELECT TOP 1 [LSTSERN] FROM [SERNUM]")
+            .FirstOrDefaultAsync();
+        if (string.IsNullOrWhiteSpace(lastStoredSerialNumber))
+        {
+            lastStoredSerialNumber = await this.InventoryEntries
+                .Where(i => i.IdKey == GeneratorConstants.SERIAL_NUMBER_ID_KEY)
+                .OrderByDescending(i => i.SavedDateTime).ThenByDescending(i => i.InventoryNumber)
+                .Select(i => i.InventoryNumber).FirstOrDefaultAsync();
+        }
+
+        return lastStoredSerialNumber ?? string.Empty;
     }
 
     public Task SaveNewLastSerialNumberAsync(string serialNumber)

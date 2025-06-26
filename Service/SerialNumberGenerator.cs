@@ -23,12 +23,6 @@ public class SerialNumberGenerator : ISerialNumberGenerator
         try
         {
             var generatorResponse = new GeneratorResponse();
-            var configFilePath = _configuration.GetSection("AppSettings")["FilePath"];
-            generatorResponse.FilePath = !string.IsNullOrWhiteSpace(userFilePath)
-                ? userFilePath
-                : !string.IsNullOrWhiteSpace(configFilePath)
-                    ? configFilePath
-                    : generatorResponse.FilePath;
 
             var lastSavedSerialNumber = await _woContext.GetLastSerialNumberAsync();
             var lastSerialNumberObj = new LastSerialNumber(lastSavedSerialNumber);
@@ -38,6 +32,11 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                       !_woContext.InventoryEntries.Any(i => i.WorkOrderId == order.WorkOrderId)
                 select order).ToListAsync();
 
+            if (newOrders.Count == 0)
+            {
+                generatorResponse.LastGeneratedSerialNumber = lastSerialNumberObj.SerialNumber;
+                return generatorResponse;
+            }
 
             generatorResponse.WorkOrdersCount = newOrders.Count;
             generatorResponse.SerialNumbersGeneratedCount = newOrders.Sum(o => o.BuildQuantity);
@@ -56,6 +55,12 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                 }
             }
 
+            var configFilePath = _configuration.GetSection("AppSettings")["FilePath"];
+            generatorResponse.FilePath = !string.IsNullOrWhiteSpace(userFilePath)
+                ? userFilePath
+                : !string.IsNullOrWhiteSpace(configFilePath)
+                    ? configFilePath
+                    : generatorResponse.FilePath;
             await using (var writer =
                          new StreamWriter($"{generatorResponse.FilePath}\\wo_ser_{DateTime.Now:yyyyMMdd}.csv"))
             await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))

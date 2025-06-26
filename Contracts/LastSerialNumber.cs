@@ -1,11 +1,20 @@
 namespace Contracts;
 
-public class LastSerialNumber(string serialNumber)
+public class LastSerialNumber
 {
-    public string SerialNumber { get; private set; } = serialNumber;
+    // Full string Serial Number 000000000000000000000000000-DA
+    public string SerialNumber { get; private set; }
 
     private int _numberPart = -1;
+    // Only number part of the Serial Number, example: 123
     public int NumberPart => GetNumberPart();
+
+    public LastSerialNumber(string serialNumber)
+    {
+        SerialNumber = string.IsNullOrWhiteSpace(serialNumber)
+            ? GeneratorConstants.SERIAL_NUMBER_ENDING.PadLeft(GeneratorConstants.SERIAL_NUMBER_LENGTH, '0')
+            : serialNumber;
+    }
 
     public void SetNewSerialNumber(string serialNumber)
     {
