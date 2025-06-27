@@ -62,7 +62,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                     ? configFilePath
                     : generatorResponse.FilePath;
             await using (var writer =
-                         new StreamWriter($"{generatorResponse.FilePath}/wo_ser_{DateTime.Now:yyyyMMdd}.csv"))
+                         new StreamWriter(Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.csv")))
             await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.Context.RegisterClassMap<SerialNumberRecordClassMap>();
