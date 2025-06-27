@@ -12,21 +12,43 @@ public class WorkOrderContext : DbContext
 
     public async Task<string> GetLastSerialNumberAsync()
     {
-        var lastStoredSerialNumber = await this.Database.SqlQuery<string>($"SELECT TOP 1 [LSTSERN] FROM [SERNUM]")
-            .FirstOrDefaultAsync();
-        if (string.IsNullOrWhiteSpace(lastStoredSerialNumber))
+        try
         {
-            lastStoredSerialNumber = await this.InventoryEntries
-                .Where(i => i.IdKey == GeneratorConstants.SERIAL_NUMBER_ID_KEY)
-                .OrderByDescending(i => i.SavedDateTime).ThenByDescending(i => i.InventoryNumber)
-                .Select(i => i.InventoryNumber).FirstOrDefaultAsync();
-        }
+            var lastStoredSerialNumber = await this.Database.SqlQuery<string>($"SELECT TOP 1 [LSTSERN] as value FROM [SERNUM]")
+                .FirstOrDefaultAsync();
+            if (string.IsNullOrWhiteSpace(lastStoredSerialNumber))
+            {
+                lastStoredSerialNumber = await this.InventoryEntries
+                    .Where(i => i.IdKey == GeneratorConstants.SERIAL_NUMBER_ID_KEY)
+                    .OrderByDescending(i => i.SavedDateTime).ThenByDescending(i => i.SerialNumber)
+                    .Select(i => i.SerialNumber).FirstOrDefaultAsync();
+            }
 
-        return lastStoredSerialNumber ?? string.Empty;
+            return lastStoredSerialNumber ?? string.Empty;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
-    public Task SaveNewLastSerialNumberAsync(string serialNumber)
+    public async Task SaveNewLastSerialNumberAsync(string serialNumber)
     {
-        return Task.CompletedTask;
+        await using var transaction = await this.Database.BeginTransactionAsync();
+        try
+        {
+            await this.Database.ExecuteSqlAsync($"TRUNCATE TABLE [SERNUM]");
+            await this.Database.ExecuteSqlAsync($"INSERT INTO [SERNUM] ([LSTSERN]) VALUES ({serialNumber})");
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return;
     }
 }

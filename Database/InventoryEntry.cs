@@ -7,7 +7,8 @@ namespace Database;
 public class InventoryEntry
 {
     [Key] [Column("SERIALUNIQ")] public string InventoryNumber { get; set; }
+    [Column("SERIALNO")] public string SerialNumber { get; set; }
     [Column("WONO")] public string WorkOrderId { get; set; }
     [Column("ID_KEY")] public string IdKey { get; set; }
-    [Column("SAVEDTTKM")] public DateTime SavedDateTime { get; set; }
+    [Column("SAVEDTTM")] public DateTime SavedDateTime { get; set; }
 }

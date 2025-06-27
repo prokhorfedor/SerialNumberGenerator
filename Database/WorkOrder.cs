@@ -17,5 +17,5 @@ public class WorkOrder
     public string OpenClose { get; set; }
 
     [Column("BLDQTY")]
-    public int BuildQuantity { get; set; }
+    public decimal BuildQuantity { get; set; }
 }
