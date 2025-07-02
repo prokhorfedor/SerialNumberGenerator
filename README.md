@@ -14,4 +14,4 @@
 
 ## Desktop App
 
-In the last update I've addeed a desktop app that you may find in `SerialNumberGeneratorApp/Tool/SerialNumberGeneratorApp.exe`
+In the last update I've addeed a desktop app that you may find in `./Tool/SerialNumberGeneratorApp.exe`
