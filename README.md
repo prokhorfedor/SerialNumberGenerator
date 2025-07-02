@@ -15,3 +15,4 @@
 ## Desktop App
 
 In the last update I've addeed a desktop app that you may find in `./Tool/SerialNumberGeneratorApp.exe`
+There is also an **appsetting.json** file where you can put settings like connection string and file path just like for API.
