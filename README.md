@@ -10,3 +10,8 @@
 
 - Before running it you'll have to put SQL connection string to **appsettings.json** file
 - In addition you can add a file path where you want to save your file in **appsetting.json** file. **Default is Desktop**. Also you can **override** it by passing it into the **endpoint**.
+
+
+## Desktop App
+
+In the last update I've addeed a desktop app that you may find in `SerialNumberGeneratorApp/Tool/SerialNumberGeneratorApp.exe`
