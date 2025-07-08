@@ -8,8 +8,9 @@
         Title="SerialNumberGenerator">
     <Grid Background="#FFF0F0F0" Width="350" Height="450">
         <Button Content="Generate" Margin="104,136,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="136" Height="40" FontSize="17" Name="GenerateButton" Background="#FFA0B7EE" Click="GenerateButton_OnClick"/>
-        <TextBlock ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="LightGray"
-                   ScrollViewer.VerticalScrollBarVisibility="Auto" Text="TextBlock" Margin="16,192,16,8" FontSize="14" Height="240" TextWrapping="Wrap" TextTrimming="WordEllipsis" Name="GeneratorInfoBox" />
+        <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True" Height="240" Margin="16,192,16,8">
+                <TextBlock Background="LightGray" Text="TextBlock" FontSize="14" TextWrapping="Wrap" TextTrimming="WordEllipsis" Name="GeneratorInfoBox" />
+        </ScrollViewer>
         <TextBlock Text="Serial number Generator Tool" FontSize="19" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24" Width="272" Margin="32,24,0,0" TextAlignment="Center" />
     </Grid>
 </Window>

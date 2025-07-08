@@ -12,6 +12,7 @@ public class WorkOrderContext : DbContext
 
     public async Task<string> GetLastSerialNumberAsync()
     {
+        await using var transaction = await this.Database.BeginTransactionAsync();
         try
         {
             var lastStoredSerialNumber = await this.Database.SqlQuery<string>($"SELECT TOP 1 [LSTSERN] as value FROM [SERNUM]")
@@ -24,10 +25,12 @@ public class WorkOrderContext : DbContext
                     .Select(i => i.SerialNumber).FirstOrDefaultAsync();
             }
 
+            await transaction.CommitAsync();
             return lastStoredSerialNumber ?? string.Empty;
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             Console.WriteLine(e);
             throw;
         }
