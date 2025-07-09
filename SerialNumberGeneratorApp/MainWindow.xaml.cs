@@ -28,6 +28,13 @@ public partial class MainWindow : Window
             sb.AppendLine("Starting generation of serial numbers...");
             this.GeneratorInfoBox.Text = sb.ToString();
             var response = await _serialNumberGenerator.GenerateSerialNumbersFileAsync(string.Empty);
+            if (response.WorkOrdersCount == 0)
+            {
+                sb.AppendLine($"No new work orders found.");
+                sb.AppendLine($"Last generated serial number: {response.LastGeneratedSerialNumber}");
+                this.GeneratorInfoBox.Text = sb.ToString();
+                return;
+            }
             sb.AppendLine($"Serial numbers generated successfully. Saved file to {response.FilePath}");
             sb.AppendLine($"Total work orders processed: {response.WorkOrdersCount}");
             sb.AppendLine($"Total serial numbers generated: {response.SerialNumbersGeneratedCount}");
