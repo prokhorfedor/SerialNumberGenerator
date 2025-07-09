@@ -7,8 +7,16 @@ public class WorkOrderContext : DbContext
 {
     public DbSet<InventoryEntry> InventoryEntries { get; set; }
     public DbSet<WorkOrder> WorkOrders { get; set; }
+    public DbSet<WorkOrderSerialized> WorkOrdersSerialized { get; set; }
 
     public WorkOrderContext(DbContextOptions<WorkOrderContext> options) : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<WorkOrder>().HasOne<WorkOrderSerialized>(wo => wo.WorkOrderSerialized).WithOne()
+            .HasForeignKey<WorkOrderSerialized>(wo => wo.WorkOrderId);
+        base.OnModelCreating(modelBuilder);
+    }
 
     public async Task<string> GetLastSerialNumberAsync()
     {

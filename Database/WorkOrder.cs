@@ -18,4 +18,6 @@ public class WorkOrder
 
     [Column("BLDQTY")]
     public decimal BuildQuantity { get; set; }
+
+    public WorkOrderSerialized? WorkOrderSerialized { get; set; }
 }

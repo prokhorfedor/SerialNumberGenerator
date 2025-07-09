@@ -27,9 +27,10 @@ public class SerialNumberGenerator : ISerialNumberGenerator
             var lastSavedSerialNumber = await _woContext.GetLastSerialNumberAsync();
             var lastSerialNumberObj = new LastSerialNumber(lastSavedSerialNumber);
 
-            var newOrders = await (from order in _woContext.WorkOrders
+            var newOrders = await (from order in _woContext.WorkOrders.Include(wo => wo.WorkOrderSerialized)
                 where order.HasSerialNumber && order.OpenClose == GeneratorConstants.WORKORDER_OPEN_STATUS &&
                       !_woContext.InventoryEntries.Any(i => i.WorkOrderId == order.WorkOrderId)
+                      && (order.WorkOrderSerialized == null || !order.WorkOrderSerialized.IsSerialNumberGenerated)
                 select order).ToListAsync();
 
             if (newOrders.Count == 0)
@@ -53,7 +54,22 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                         SerialNumber = $"{++currentNumberPart}{GeneratorConstants.SERIAL_NUMBER_ENDING}",
                     });
                 }
+
+                if (order.WorkOrderSerialized != null)
+                {
+                    order.WorkOrderSerialized.IsSerialNumberGenerated = true;
+                }
+                else
+                {
+                    await _woContext.WorkOrdersSerialized.AddAsync(new WorkOrderSerialized()
+                    {
+                        WorkOrderId = order.WorkOrderId,
+                        IsSerialNumberGenerated = true
+                    });
+                }
             }
+
+            await _woContext.SaveChangesAsync();
 
             var configFilePath = _configuration.GetSection("AppSettings")["FilePath"];
             generatorResponse.FilePath = !string.IsNullOrWhiteSpace(userFilePath)
