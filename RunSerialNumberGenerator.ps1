@@ -1,1 +1,0 @@
-dotnet run --project SerialNumberGeneratorAPI/SerialNumberGeneratorAPI.csproj --launch-profile 'SerialNumberGenerator' | Start-Process "http://localhost:53348/swagger/index.html"
