@@ -58,7 +58,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
 
                 if (order.WorkOrderSerialized != null)
                 {
-                    //order.WorkOrderSerialized.IsSerialNumberGenerated = true;
+                    order.WorkOrderSerialized.IsSerialNumberGenerated = true;
                 }
                 else
                 {
@@ -78,13 +78,6 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                 : !string.IsNullOrWhiteSpace(configFilePath)
                     ? configFilePath
                     : generatorResponse.FilePath;
-            // await using (var writer =
-            //              new StreamWriter(Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.csv")))
-            // await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            // {
-            //     csv.Context.RegisterClassMap<SerialNumberRecordClassMap>();
-            //     await csv.WriteRecordsAsync(records);
-            // }
 
             var filePath = Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
             using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
