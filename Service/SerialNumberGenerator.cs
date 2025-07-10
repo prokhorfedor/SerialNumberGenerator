@@ -73,14 +73,14 @@ public class SerialNumberGenerator : ISerialNumberGenerator
             await _woContext.SaveChangesAsync();
 
             var configFilePath = _configuration.GetSection("AppSettings")["FilePath"];
-            generatorResponse.FilePath = !string.IsNullOrWhiteSpace(userFilePath)
+            var folderPath = !string.IsNullOrWhiteSpace(userFilePath)
                 ? userFilePath
                 : !string.IsNullOrWhiteSpace(configFilePath)
                     ? configFilePath
                     : generatorResponse.FilePath;
 
-            var filePath = Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
-            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
+            generatorResponse.FilePath = Path.Combine(folderPath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(generatorResponse.FilePath, SpreadsheetDocumentType.Workbook))
             {
                 // get sheet data
                 SheetData mySheetData = MakeSheetData(records);
