@@ -1,7 +1,8 @@
-using System.Globalization;
 using Contracts;
-using CsvHelper;
 using Database;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -57,7 +58,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
 
                 if (order.WorkOrderSerialized != null)
                 {
-                    order.WorkOrderSerialized.IsSerialNumberGenerated = true;
+                    //order.WorkOrderSerialized.IsSerialNumberGenerated = true;
                 }
                 else
                 {
@@ -77,12 +78,34 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                 : !string.IsNullOrWhiteSpace(configFilePath)
                     ? configFilePath
                     : generatorResponse.FilePath;
-            await using (var writer =
-                         new StreamWriter(Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.csv")))
-            await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            // await using (var writer =
+            //              new StreamWriter(Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.csv")))
+            // await using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            // {
+            //     csv.Context.RegisterClassMap<SerialNumberRecordClassMap>();
+            //     await csv.WriteRecordsAsync(records);
+            // }
+
+            var filePath = Path.Combine(generatorResponse.FilePath, $"wo_ser_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+            using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
             {
-                csv.Context.RegisterClassMap<SerialNumberRecordClassMap>();
-                await csv.WriteRecordsAsync(records);
+                // get sheet data
+                SheetData mySheetData = MakeSheetData(records);
+
+                // Add a WorkbookPart to the document.
+                WorkbookPart workbookPart = spreadsheetDocument.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
+
+                // Add a WorksheetPart to the WorkbookPart.
+                WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                worksheetPart.Worksheet = new Worksheet(mySheetData);
+
+                // Add Sheets to the Workbook.
+                Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+
+                // Append a new worksheet and associate it with the workbook.
+                Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "serialNumbers" };
+                sheets.Append(sheet);
             }
 
             var newLastSerialNumber =
@@ -100,5 +123,68 @@ public class SerialNumberGenerator : ISerialNumberGenerator
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    private SheetData MakeSheetData(List<SerialNumberRecords> recordsList)
+    {
+        var workOrderColumnIndex = 1;
+        var serialNumberColumnIndex = 2;
+        //set the row count for header
+        int rowCount = 1;
+
+        //create the header
+        Row header = new Row();
+
+        //create the row index
+        header.RowIndex = (uint)rowCount;
+
+        //the sheet itself to return
+        SheetData sheetData = new SheetData();
+
+        // Add WorkOrder column
+        Cell workOrderHeaderCell = CreateCell(workOrderColumnIndex, rowCount, "WONO");
+
+        // append the cell to the row (header row in this case)
+        header.AppendChild(workOrderHeaderCell);
+
+        // Add SerialNumber column
+        Cell serialNumberHeaderCell = CreateCell(serialNumberColumnIndex, rowCount, "SerialNO");
+
+        // append the cell to the row (header row in this case)
+        header.AppendChild(serialNumberHeaderCell);
+
+        //and now another row...
+        rowCount++;
+
+        //dont forget to append header!
+        sheetData.AppendChild(header);
+
+        //for each element in my list, every is pretty the same
+        foreach (var record in recordsList)
+        {
+            Row newRow = new Row();
+            newRow.RowIndex = (uint)rowCount;
+            Cell workOrderCell = CreateCell(workOrderColumnIndex, rowCount, record.WorkOrderId);
+            newRow.AppendChild(workOrderCell);
+            Cell serialNumberCell = CreateCell(serialNumberColumnIndex, rowCount, record.SerialNumber);
+            newRow.AppendChild(serialNumberCell);
+            sheetData.AppendChild(newRow);
+            rowCount++;
+        }
+
+        return sheetData;
+    }
+
+    private Cell CreateCell(int positionX, int positionY, string data)
+    {
+        //this only will be for the reference of the cell, coming from my row count and my column count
+        int unicode = 64 + positionX;
+        char character = (char)unicode;
+        Cell newCell = new Cell() { CellReference = character.ToString() + positionY };
+
+        //the data itself
+        newCell.CellValue = new CellValue(data);
+        newCell.DataType = new EnumValue<CellValues>(CellValues.String);
+        return newCell;
     }
 }
