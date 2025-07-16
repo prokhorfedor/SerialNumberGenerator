@@ -30,8 +30,9 @@ public class SerialNumberGenerator : ISerialNumberGenerator
 
             var newOrders = await (from order in _woContext.WorkOrders.Include(wo => wo.WorkOrderSerialized)
                 where order.HasSerialNumber && order.OpenClose == GeneratorConstants.WORKORDER_OPEN_STATUS &&
+                      order.JobType != GeneratorConstants.REWORK_ORDER_TYPE &&
                       !_woContext.InventoryEntries.Any(i => i.WorkOrderId == order.WorkOrderId)
-                      && (order.WorkOrderSerialized == null || !order.WorkOrderSerialized.IsSerialNumberGenerated)
+                      && (order.WorkOrderSerialized == null || !(order.WorkOrderSerialized.IsSerialNumberGenerated ?? false))
                 select order).ToListAsync();
 
             if (newOrders.Count == 0)

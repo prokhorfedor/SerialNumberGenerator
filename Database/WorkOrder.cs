@@ -16,8 +16,10 @@ public class WorkOrder
     [Column("OPENCLOS", TypeName = "nvarchar(10)")]
     public string OpenClose { get; set; }
 
-    [Column("BLDQTY")]
-    public decimal BuildQuantity { get; set; }
+    [Column("JobType", TypeName = "nvarchar(30)")]
+    public string? JobType { get; set; }
+
+    [Column("BLDQTY")] public decimal BuildQuantity { get; set; }
 
     public WorkOrderSerialized? WorkOrderSerialized { get; set; }
 }

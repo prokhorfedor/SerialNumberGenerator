@@ -15,5 +15,5 @@ public class WorkOrderSerialized
     public string WorkOrderId { get; set; }
 
     [Column("Is_Serial_Number_Generated", TypeName = "bit")]
-    public bool IsSerialNumberGenerated { get; set; }
+    public bool? IsSerialNumberGenerated { get; set; }
 }
