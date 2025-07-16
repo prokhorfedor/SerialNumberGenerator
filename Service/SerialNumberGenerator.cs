@@ -31,7 +31,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
             var newOrders = await (from order in _woContext.WorkOrders.Include(wo => wo.WorkOrderSerialized)
                 where order.HasSerialNumber && order.OpenClose == GeneratorConstants.WORKORDER_OPEN_STATUS &&
                       !_woContext.InventoryEntries.Any(i => i.WorkOrderId == order.WorkOrderId)
-                      && order.WorkOrderSerialized == null
+                      && (order.WorkOrderSerialized == null || !order.WorkOrderSerialized.IsSerialNumberGenerated)
                 select order).ToListAsync();
 
             if (newOrders.Count == 0)
@@ -56,10 +56,18 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                     });
                 }
 
-                await _woContext.WorkOrdersSerialized.AddAsync(new WorkOrderSerialized()
+                if (order.WorkOrderSerialized != null)
                 {
-                    WorkOrderId = order.WorkOrderId
-                });
+                    order.WorkOrderSerialized.IsSerialNumberGenerated = true;
+                }
+                else
+                {
+                    await _woContext.WorkOrdersSerialized.AddAsync(new WorkOrderSerialized()
+                    {
+                        WorkOrderId = order.WorkOrderId,
+                        IsSerialNumberGenerated = true
+                    });
+                }
             }
 
             await _woContext.SaveChangesAsync();
