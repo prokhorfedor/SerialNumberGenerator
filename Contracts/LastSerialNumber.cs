@@ -2,7 +2,7 @@ namespace Contracts;
 
 public class LastSerialNumber
 {
-    // Full string Serial Number 000000000000000000000000123-DA
+    // Full string Serial Number 000000000000000000000000123
     public string SerialNumber { get; private set; }
 
     private int _numberPart = -1;
@@ -12,7 +12,7 @@ public class LastSerialNumber
     public LastSerialNumber(string serialNumber)
     {
         SerialNumber = string.IsNullOrWhiteSpace(serialNumber)
-            ? GeneratorConstants.SERIAL_NUMBER_ENDING.PadLeft(GeneratorConstants.SERIAL_NUMBER_LENGTH, '0')
+            ? string.Empty.PadLeft(GeneratorConstants.SERIAL_NUMBER_LENGTH, '0')
             : serialNumber.PadLeft(GeneratorConstants.SERIAL_NUMBER_LENGTH, '0');
     }
 
@@ -29,7 +29,7 @@ public class LastSerialNumber
 
         var endingIndex = SerialNumber.IndexOf(GeneratorConstants.SERIAL_NUMBER_ENDING,
             StringComparison.OrdinalIgnoreCase);
-        var numberPart = endingIndex < 0 ? string.Empty : SerialNumber.Remove(endingIndex);
+        var numberPart = endingIndex < 0 ? SerialNumber : SerialNumber.Remove(endingIndex);
         var numberPartNum = int.TryParse(numberPart, out var result) ? result : 0;
         _numberPart = numberPartNum == 0 ? 0 : numberPartNum;
         return numberPartNum;

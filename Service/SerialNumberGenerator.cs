@@ -53,7 +53,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
                     records.Add(new SerialNumberRecords()
                     {
                         WorkOrderId = order.WorkOrderId,
-                        SerialNumber = $"{++currentNumberPart}{GeneratorConstants.SERIAL_NUMBER_ENDING}",
+                        SerialNumber = $"{++currentNumberPart}",
                     });
                 }
 
@@ -103,7 +103,7 @@ public class SerialNumberGenerator : ISerialNumberGenerator
             }
 
             var newLastSerialNumber =
-                $"{(lastSerialNumberObj.NumberPart + generatorResponse.SerialNumbersGeneratedCount)}{GeneratorConstants.SERIAL_NUMBER_ENDING}";
+                $"{lastSerialNumberObj.NumberPart + generatorResponse.SerialNumbersGeneratedCount}";
 
             lastSerialNumberObj.SetNewSerialNumber(newLastSerialNumber);
 
